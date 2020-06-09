@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1479378758891020412}
   - component: {fileID: 2536577066063841811}
   m_Layer: 0
-  m_Name: BULLET
+  m_Name: BULLETDENSE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a5716276e5b9cb2468ca247971c458a4, type: 2}
+  - {fileID: 2100000, guid: 60490a4c4861af14db2965996874b8da, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,7 +110,7 @@ MonoBehaviour:
   lifeTime: 5
   bulletDamage: 1
   theRB: {fileID: 0}
-  impactEffect: {fileID: 7219191744094547404, guid: 67f2ba2144868e94d977b2c271a3c213,
+  impactEffect: {fileID: 7219191744094547404, guid: 8db22fb60eeba1c4baec50892b881250,
     type: 3}
   damageEnemy: 1
   damagePlayer: 0
@@ -148,7 +148,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a5716276e5b9cb2468ca247971c458a4, type: 2}
+  - {fileID: 2100000, guid: 60490a4c4861af14db2965996874b8da, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

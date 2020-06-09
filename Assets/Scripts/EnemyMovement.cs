@@ -5,8 +5,7 @@ using System.Collections;
 public class EnemyMovement : MonoBehaviour
 {
     public bool targetLocated,chasing;
-    public float moveSpeed, rotateSpeed, distanceToChase = 6f,distanceToLose = 10f, distanceToStop = 2.5f;
-    //public Rigidbody enemyRB;
+    public float rotateSpeed, distanceToChase = 6f,distanceToLose = 10f, distanceToStop = 2.5f;
     public Transform target;
     Vector3 targetPoint, startPoint;
     public Vector3[] navPoints;
@@ -14,11 +13,18 @@ public class EnemyMovement : MonoBehaviour
     public NavMeshAgent enemyAgent;
     public float keepChaseTimer = 5f;
     private float chaseCounter;
+    public GameObject bullet;
+    public Transform firepoint;
+    public float fireRate, waitBetweenShot = 2f, timeToShoot, firstFireWait = 1f;
+    float fireRateTimer, shotWaitTimer, shootTimer;
+
     // Use this for initialization
     void Start()
     {
         enemyAgent = GetComponent<NavMeshAgent>();
         startPoint = transform.position;
+        shootTimer = timeToShoot;
+        shotWaitTimer = waitBetweenShot;
     }
 
     // Update is called once per frame
@@ -34,6 +40,7 @@ public class EnemyMovement : MonoBehaviour
             if (Vector3.Distance(transform.position, targetPoint) < distanceToChase)
             {
                 chasing = true;
+                fireRateTimer = firstFireWait;
                 targetLocated = true;
             }
             if (chaseCounter > 0)
@@ -59,7 +66,6 @@ public class EnemyMovement : MonoBehaviour
                 enemyAgent.destination = transform.position;
             }
 
-            enemyAgent.destination = targetPoint;
 
             if (Vector3.Distance(transform.position, targetPoint) > distanceToLose)
             {
@@ -67,6 +73,33 @@ public class EnemyMovement : MonoBehaviour
                 targetLocated = false;
                 //enemyAgent.destination = startPoint;
                 chaseCounter = keepChaseTimer;
+            }
+            if (shotWaitTimer > 0)
+            {
+                shotWaitTimer -= Time.deltaTime;
+            }
+            else
+            {
+                shootTimer -= Time.deltaTime;
+
+
+                if (shootTimer > 0)
+                {
+
+
+                    fireRateTimer -= Time.deltaTime;
+
+                    if (fireRateTimer <= 0)
+                    {
+                        fireRateTimer = fireRate;
+
+                        Instantiate(bullet, firepoint.position, firepoint.rotation);
+                    }
+                }
+                else
+                {
+                    shotWaitTimer = waitBetweenShot;
+                }
             }
         }
     }
