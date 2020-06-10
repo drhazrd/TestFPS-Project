@@ -9,6 +9,7 @@ public class GunController : MonoBehaviour
     public PlayerController playerCam;
     public float gunHitDistance;
     public Transform localGunTransform;
+    public bool isFiring;
     // Use this for initialization
     void Start()
     {
@@ -19,7 +20,14 @@ public class GunController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetAxis("JoyFire1") > 0.1f || Input.GetButtonDown("JoyFire2"))
+            isFiring = true;
+        else
+            isFiring = false;
+
+
+
+        if (Input.GetMouseButtonDown(0) || Input.GetAxis("JoyFire1") > 0.1f ||Input.GetButtonDown("JoyFire2"))
         {
             RaycastHit hit;
             if(Physics.Raycast(localGunTransform.position, localGunTransform.forward, out hit, gunHitDistance))

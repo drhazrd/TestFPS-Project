@@ -11,12 +11,12 @@ public class PlayerController : MonoBehaviour
     public CharacterController charCon;
 
     Vector3 moveInput;
+    Vector2 mouseInput;
 
     public Transform camTrans;
 
-    public float mouseInputSensetivity;
-    public bool invertX;
-    public bool invertY;
+    public float mouseInputSensetivity, joyInputSensetivity = 1f;
+    public bool invertX, invertY, useJoyStick;
 
     private bool canJump, canDoubleJump;
     public bool isRunning;
@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheckpoint;
     public LayerMask whatIsGround;
     public Animator anim;
+
 
     void Awake()
     {
@@ -35,13 +36,13 @@ public class PlayerController : MonoBehaviour
         //moveInput.z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
 
         float yStore = moveInput.y;
-
-        Vector3 verticalMovement = transform.forward * Input.GetAxis("Vertical");
-        Vector3 horizontalMovement = transform.right * Input.GetAxis("Horizontal");
+        Vector3 verticalMovement = transform.forward * (Input.GetAxis("Vertical"));
+        Vector3 horizontalMovement = transform.right * (Input.GetAxis("Horizontal"));
+       
 
         moveInput = horizontalMovement + verticalMovement;
         moveInput.Normalize();
-        if (Input.GetKey(KeyCode.LeftShift )|| Input.GetKey(KeyCode.LeftAlt) || Input.GetButtonDown("Sprint"))
+        if (Input.GetKey(KeyCode.LeftShift ) || Input.GetButton("Sprint"))
         {
             moveInput = moveInput * runSpeed;
             isRunning = true;
@@ -71,12 +72,12 @@ public class PlayerController : MonoBehaviour
 
 
         //Jumping
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (Input.GetButtonDown("Jump") && canJump)
         {
             moveInput.y = jumpPower;
             canDoubleJump = true;
         }
-        else if (canDoubleJump && Input.GetKeyDown(KeyCode.Space))
+        else if (canDoubleJump && Input.GetButtonDown("Jump"))
         {
             moveInput.y = jumpPower;
             canDoubleJump = false;
@@ -85,8 +86,11 @@ public class PlayerController : MonoBehaviour
         charCon.Move(moveInput * Time.deltaTime);
 
         //Camera
-        Vector2 mouseInput = new Vector2(Input.GetAxisRaw("MouseX"), Input.GetAxisRaw("MouseY")) * mouseInputSensetivity;
-
+        if (!useJoyStick) {
+            mouseInput = new Vector2(Input.GetAxisRaw("MouseX"), Input.GetAxisRaw("MouseY")) * mouseInputSensetivity;
+        } else {
+            mouseInput = new Vector2(Input.GetAxisRaw("JoyX"), Input.GetAxisRaw("JoyY")) * joyInputSensetivity;
+        }
         if (invertX)
         {
             mouseInput.x = -mouseInput.x;

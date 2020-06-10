@@ -40,12 +40,14 @@ public class EnemyMovement : MonoBehaviour
             if (Vector3.Distance(transform.position, targetPoint) < distanceToChase)
             {
                 chasing = true;
-                fireRateTimer = firstFireWait;
                 targetLocated = true;
+                shootTimer = timeToShoot;
+                shotWaitTimer = waitBetweenShot;
             }
             if (chaseCounter > 0)
             {
                 chaseCounter -= Time.deltaTime;
+
                 if (chaseCounter <= 0)
                 {
                     enemyAgent.destination = startPoint;
@@ -77,6 +79,11 @@ public class EnemyMovement : MonoBehaviour
             if (shotWaitTimer > 0)
             {
                 shotWaitTimer -= Time.deltaTime;
+
+                if (shootTimer <= 0)
+                {
+                    shootTimer = timeToShoot;
+                }
             }
             else
             {
@@ -95,6 +102,7 @@ public class EnemyMovement : MonoBehaviour
 
                         Instantiate(bullet, firepoint.position, firepoint.rotation);
                     }
+                    enemyAgent.destination = transform.position;
                 }
                 else
                 {
