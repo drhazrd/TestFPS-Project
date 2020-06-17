@@ -11,12 +11,14 @@ public class EnemyMovement : MonoBehaviour
     public Vector3[] navPoints;
     public int navPointID;
     public NavMeshAgent enemyAgent;
+    public Animator anim;
     public float keepChaseTimer = 5f;
     private float chaseCounter;
     public GameObject bullet;
     public Transform firepoint;
     public float fireRate, waitBetweenShot = 2f, timeToShoot, firstFireWait = 1f;
-    float fireRateTimer, shotWaitTimer, shootTimer;
+    float fireRateTimer, shotWaitTimer, shootTimer, aimPoint = .5f;
+
 
     // Use this for initialization
     void Start()
@@ -53,6 +55,12 @@ public class EnemyMovement : MonoBehaviour
                     enemyAgent.destination = startPoint;
                 }
             }
+
+            if (enemyAgent.remainingDistance < .25)
+                anim.SetBool("isMoving", false);
+            else
+                anim.SetBool("isMoving", true);
+
         }
         else
         {
@@ -84,6 +92,7 @@ public class EnemyMovement : MonoBehaviour
                 {
                     shootTimer = timeToShoot;
                 }
+                anim.SetBool("isMoving", true);
             }
             else
             {
@@ -100,7 +109,21 @@ public class EnemyMovement : MonoBehaviour
                     {
                         fireRateTimer = fireRate;
 
-                        Instantiate(bullet, firepoint.position, firepoint.rotation);
+                        firepoint.LookAt(targetPoint + new Vector3(0,aimPoint,0));
+
+                        //Check player angle
+
+                        Vector3 targetDir = targetPoint - transform.position;
+                        float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
+                        if (Mathf.Abs(angle) < 30f)
+                        {
+                            Instantiate(bullet, firepoint.position, firepoint.rotation);
+                            anim.SetTrigger("fireShot");
+                        }
+                        else
+                        {
+                            shotWaitTimer = waitBetweenShot;
+                        }
                     }
                     enemyAgent.destination = transform.position;
                 }
@@ -108,6 +131,7 @@ public class EnemyMovement : MonoBehaviour
                 {
                     shotWaitTimer = waitBetweenShot;
                 }
+                anim.SetBool("isMoving", false);
             }
         }
     }
