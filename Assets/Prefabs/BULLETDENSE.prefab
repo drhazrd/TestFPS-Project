@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5259537539064582188}
   - component: {fileID: 1479378758891020412}
   - component: {fileID: 2536577066063841811}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: BULLETDENSE
   m_TagString: Untagged
   m_Icon: {fileID: 0}

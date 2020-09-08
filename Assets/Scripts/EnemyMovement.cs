@@ -4,8 +4,8 @@ using System.Collections;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public bool targetLocated,chasing;
-    public float rotateSpeed, distanceToChase = 6f,distanceToLose = 10f, distanceToStop = 2.5f;
+    public bool targetLocated, chasing;
+    public float rotateSpeed, distanceToChase = 6f, distanceToLose = 10f, distanceToStop = 2.5f;
     public Transform target;
     Vector3 targetPoint, startPoint;
     public Vector3[] navPoints;
@@ -96,40 +96,45 @@ public class EnemyMovement : MonoBehaviour
             }
             else
             {
-                shootTimer -= Time.deltaTime;
-
-
-                if (shootTimer > 0)
+                if (PlayerController.instance.gameObject.activeInHierarchy)
                 {
 
 
-                    fireRateTimer -= Time.deltaTime;
+                    shootTimer -= Time.deltaTime;
 
-                    if (fireRateTimer <= 0)
+
+                    if (shootTimer > 0)
                     {
-                        fireRateTimer = fireRate;
 
-                        firepoint.LookAt(targetPoint + new Vector3(0,aimPoint,0));
 
-                        //Check player angle
+                        fireRateTimer -= Time.deltaTime;
 
-                        Vector3 targetDir = targetPoint - transform.position;
-                        float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
-                        if (Mathf.Abs(angle) < 30f)
+                        if (fireRateTimer <= 0)
                         {
-                            Instantiate(bullet, firepoint.position, firepoint.rotation);
-                            anim.SetTrigger("fireShot");
+                            fireRateTimer = fireRate;
+
+                            firepoint.LookAt(targetPoint + new Vector3(0, aimPoint, 0));
+
+                            //Check player angle
+
+                            Vector3 targetDir = targetPoint - transform.position;
+                            float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
+                            if (Mathf.Abs(angle) < 30f)
+                            {
+                                Instantiate(bullet, firepoint.position, firepoint.rotation);
+                                anim.SetTrigger("fireShot");
+                            }
+                            else
+                            {
+                                shotWaitTimer = waitBetweenShot;
+                            }
                         }
-                        else
-                        {
-                            shotWaitTimer = waitBetweenShot;
-                        }
+                        enemyAgent.destination = transform.position;
                     }
-                    enemyAgent.destination = transform.position;
-                }
-                else
-                {
-                    shotWaitTimer = waitBetweenShot;
+                    else
+                    {
+                        shotWaitTimer = waitBetweenShot;
+                    }
                 }
                 anim.SetBool("isMoving", false);
             }

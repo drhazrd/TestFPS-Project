@@ -1,33 +1,62 @@
-﻿using UnityEngine;
+﻿using UnityEngine.UI;
+using UnityEngine;
 using System.Collections;
+using System;
 
 public class GunController : MonoBehaviour
 {
+    //GameObject Variables
+
     public Transform firePoint;
     public GameObject bullet;
     public ParticleSystem fireEffect;
-    public PlayerController playerCam;
+    public PlayerController playerCntrllr;
+
+    //Shot Tracking Variables
     public float gunHitDistance;
-    public Transform localGunTransform;
-    public bool isFiring;
+    Transform localGunTransform;
+
+    //Firing Variables
+    public bool isFiring, canAutoFire;
+    public float fireRate;
+    [HideInInspector]
+    public float fireCounter;
+
+    //Ammo Variables
+    public int currentAmmo, currentAmmoHolder, maxAmmo, reloadAmount;
+    public float reloadTimer;
+    public Text ammoText;
+    public bool isAmmoPouch;
+
     // Use this for initialization
     void Start()
     {
         fireEffect = GetComponentInChildren<ParticleSystem>();
-        localGunTransform = playerCam.camTrans;
+        localGunTransform = firePoint.transform;        
+        currentAmmo = reloadAmount;
+        currentAmmoHolder = maxAmmo;
+        isAmmoPouch = false;
     }
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetAxis("JoyFire1") > 0.1f || Input.GetButtonDown("JoyFire2"))
+        {
             isFiring = true;
+        }
         else
+        {
             isFiring = false;
+        }
 
-
-
-        if (Input.GetMouseButtonDown(0) || Input.GetAxis("JoyFire1") > 0.1f ||Input.GetButtonDown("JoyFire2"))
+        if (fireCounter > 0)
+        {
+            fireCounter -= Time.deltaTime;
+        }
+        
+        //Single Shots
+        if (Input.GetMouseButton(0) && fireCounter<=0 || Input.GetAxis("JoyFire1") > 0.1f && fireCounter <= 0 || Input.GetButtonDown("JoyFire2") && fireCounter <= 0)
         {
             RaycastHit hit;
             if(Physics.Raycast(localGunTransform.position, localGunTransform.forward, out hit, gunHitDistance))
@@ -41,9 +70,67 @@ public class GunController : MonoBehaviour
             {
                 firePoint.LookAt(localGunTransform.position + (localGunTransform.forward * 30f ));
             }
+            FireShot();
+        }
 
+        //Automatic Shots
+        if (Input.GetMouseButtonDown(0) && canAutoFire || Input.GetAxis("JoyFire1") > 0.1f && canAutoFire || Input.GetButtonDown("JoyFire2") && canAutoFire)
+        {
+            if (fireCounter <= 0)
+            {
+                FireShot();
+            }
+        }
+
+        //Text and UI info
+        if (!isAmmoPouch)
+        {
+            ammoText.text = currentAmmo.ToString() + " / " + currentAmmoHolder.ToString();
+        }
+        else if (isAmmoPouch)
+        {
+            ammoText.text = currentAmmo.ToString();
+        }
+    }
+    public void FireShot()
+    {
+        if (currentAmmo == 0 && currentAmmoHolder == 0)
+        {
+            Debug.Log("At leaset this works!");
+            return;
+        }
+        else if (currentAmmo <= 0)
+        {
+            Debug.Log("Reloading in " + reloadTimer.ToString() + " seconds");
+            StartCoroutine(Reload(reloadTimer));
+            isFiring = false;
+        }
+        else if (currentAmmo > 0)
+        {
+            currentAmmo--;
             Instantiate(bullet, firePoint.position, firePoint.rotation);
+            fireCounter = fireRate;
             fireEffect.Play();
+            isFiring = true;
+            Debug.Log("Fire!");
+        }
+    }
+    public void GetAmmo()
+    {
+
+    }
+
+    public IEnumerator Reload(float reloadTime)
+    {
+        yield return new WaitForSeconds(reloadTime);
+        if (currentAmmo == 0)
+        {
+            currentAmmo = reloadAmount;
+            currentAmmoHolder -= reloadAmount;
+        }
+        else
+        {
+            yield return null;
         }
     }
 }

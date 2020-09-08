@@ -7,8 +7,9 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour
 {
     public static UIController instance;
-    public Text healthText;
+    public Text healthText, ammoText;
     public Slider healthSlider;
+    public Slider armorSlider;
 
     // Start is called before the first frame update
     void Awake()
@@ -23,6 +24,5 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //healthText.text = "Health: " + instance.currentHealth.ToString();
     }
 }

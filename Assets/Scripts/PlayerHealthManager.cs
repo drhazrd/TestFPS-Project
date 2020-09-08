@@ -10,7 +10,10 @@ public class PlayerHealthManager : MonoBehaviour
     // Start is called before the first frame update
     public int maxHealth;
     public int currentHealth;
-    public Text healthText;
+    public int maxArmor;
+    public int currentArmor;
+    //public Text healthText;
+    //public Text armorText;
     public float invincibleLength;
     public float invincibleCounter;
 
@@ -21,6 +24,10 @@ public class PlayerHealthManager : MonoBehaviour
 
     void Start()
     {
+        currentArmor = maxArmor;
+        UIController.instance.armorSlider.maxValue = maxArmor;
+        UIController.instance.armorSlider.value = currentArmor;
+
         currentHealth = maxHealth;
         UIController.instance.healthSlider.maxValue = maxHealth;
         UIController.instance.healthSlider.value = currentHealth;
@@ -34,21 +41,46 @@ public class PlayerHealthManager : MonoBehaviour
         {
             invincibleCounter -= Time.deltaTime;
         }
+        UIController.instance.armorSlider.value = currentArmor;
         UIController.instance.healthSlider.value = currentHealth;
-        UIController.instance.healthText.text = "Health: " + currentHealth.ToString();
+        UIController.instance.healthText.text = "Health: " + currentHealth + "/" + maxHealth;
     }
     public void DamagePlayer(int damageAmt) {
         if (invincibleCounter <= 0) {
-            currentHealth -= damageAmt;
-
-            if (currentHealth <= 0)
+            if (currentArmor <= 0)
             {
-                gameObject.SetActive(false);
-                currentHealth = 0;
-                GameManager.instance.PlayerDeath();
-            }
+                currentArmor = 0;
+                currentHealth -= damageAmt;
 
+                if (currentHealth <= 0)
+                {
+                    gameObject.SetActive(false);
+                    currentHealth = 0;
+                    GameManager.instance.PlayerDied();
+                }
+            }
+            else
+            {
+                currentArmor -= damageAmt;
+            }
             invincibleCounter = invincibleLength;
         }
+    }
+    public void HealPlayer(int healedAmt)
+    {
+        currentHealth += healedAmt;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+    }
+    public void ArmorRepair(int repairedAmt)
+    {
+        currentHealth +=repairedAmt;
+         if (currentArmor > maxArmor)
+        {
+            currentArmor = maxArmor;
+        }
+
     }
 }

@@ -9,18 +9,21 @@ public class PlayerController : MonoBehaviour
 
     public float moveSpeed, runSpeed, gravityModifier, jumpPower;
     public CharacterController charCon;
+    public GameManager gM;
 
-    Vector3 moveInput;
     Vector2 mouseInput;
+    Vector3 moveInput, verticalMovement, horizontalMovement;
 
     public Transform camTrans;
 
-    public float mouseInputSensetivity, joyInputSensetivity = 1f;
-    public bool invertX, invertY, useJoyStick;
+    public GameObject isActiveGun;
 
-    private bool canJump, canDoubleJump;
-    public bool isRunning;
-    public GameObject runNotification;
+    public int pID;
+
+    public float mouseInputSensetivity, joyInputSensetivity = 1f;
+    public bool invertX, invertY, useJoyStick, isRunning;
+    private bool canJump, canDoubleJump, canMove;
+    public GameObject sprintUI;
     public Transform groundCheckpoint;
     public LayerMask whatIsGround;
     public Animator anim;
@@ -29,30 +32,41 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         instance = this;
+        isActiveGun = FindObjectOfType<GunController>().gameObject;
+        gM = FindObjectOfType<GameManager>();
+        canMove = true;
     }
     void Update()
     {
         //moveInput.x = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
         //moveInput.z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-
         float yStore = moveInput.y;
-        Vector3 verticalMovement = transform.forward * (Input.GetAxis("Vertical"));
-        Vector3 horizontalMovement = transform.right * (Input.GetAxis("Horizontal"));
+        if (!useJoyStick) {
+            verticalMovement = transform.forward * (Input.GetAxis("Vertical"));
+            horizontalMovement = transform.right * (Input.GetAxis("Horizontal"));
+        }
+
+        else if (useJoyStick) {
+            verticalMovement = transform.forward * (Input.GetAxis("Joy"+ pID +"V"));
+            horizontalMovement = transform.right * (Input.GetAxis("Joy"+ pID +"H"));
+            Debug.Log(verticalMovement);
+            Debug.Log(horizontalMovement);
+        }
        
 
+        sprintUI.SetActive(isRunning);
         moveInput = horizontalMovement + verticalMovement;
         moveInput.Normalize();
         if (Input.GetKey(KeyCode.LeftShift ) || Input.GetButton("Sprint"))
         {
             moveInput = moveInput * runSpeed;
             isRunning = true;
-            runNotification.SetActive(isRunning);
+            //sprintUI.SetActive(isRunning);
         }
         else
         {
             moveInput = moveInput * moveSpeed;
             isRunning = false;
-            runNotification.SetActive(isRunning);
         }
         moveInput.y = yStore;
 
@@ -69,8 +83,14 @@ public class PlayerController : MonoBehaviour
         {
             canDoubleJump = false;
         }
-
-
+        if (gM.playerFreeze)
+        {
+            canMove = false;
+        }
+        else
+        {
+            canMove = true;
+        }
         //Jumping
         if (Input.GetButtonDown("Jump") && canJump)
         {
@@ -86,10 +106,20 @@ public class PlayerController : MonoBehaviour
         charCon.Move(moveInput * Time.deltaTime);
 
         //Camera
-        if (!useJoyStick) {
-            mouseInput = new Vector2(Input.GetAxisRaw("MouseX"), Input.GetAxisRaw("MouseY")) * mouseInputSensetivity;
-        } else {
-            mouseInput = new Vector2(Input.GetAxisRaw("JoyX"), Input.GetAxisRaw("JoyY")) * joyInputSensetivity;
+        if (canMove)
+        {
+            if (!useJoyStick)
+            {
+                mouseInput = new Vector2(Input.GetAxisRaw("MouseX"), Input.GetAxisRaw("MouseY")) * mouseInputSensetivity;
+            }
+            else if (useJoyStick)
+            {
+                mouseInput = new Vector2(Input.GetAxisRaw("Joy" + pID + "X"), Input.GetAxisRaw("Joy" + pID + "Y")) * joyInputSensetivity;
+            }
+        }
+        else if(!canMove)
+        {
+            mouseInput = new Vector2(0,0);
         }
         if (invertX)
         {
