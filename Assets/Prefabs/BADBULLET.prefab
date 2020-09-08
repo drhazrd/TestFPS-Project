@@ -108,7 +108,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 25
   lifeTime: 5
-  bulletDamage: 5
+  bulletDamage: 15
   theRB: {fileID: 1479378758891020412}
   impactEffect: {fileID: 7219191744094547404, guid: e970a86aa4186374bafbcf5efaad44ff,
     type: 3}

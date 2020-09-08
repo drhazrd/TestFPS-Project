@@ -10,7 +10,7 @@ public class GunController : MonoBehaviour
     public Transform firePoint;
     public GameObject bullet;
     public ParticleSystem fireEffect;
-    public PlayerController playerCntrllr;
+    public PlayerController playerCtrl;
 
     //Shot Tracking Variables
     public float gunHitDistance;
@@ -23,10 +23,13 @@ public class GunController : MonoBehaviour
     public float fireCounter;
 
     //Ammo Variables
-    public int currentAmmo, currentAmmoHolder, maxAmmo, reloadAmount;
+    public int currentAmmo, currentAmmoHolder, maxAmmo, reloadAmount, pickupAmt;
     public float reloadTimer;
     public Text ammoText;
     public bool isAmmoPouch;
+
+    //Weapon Held Variables
+    public bool isActive;
 
     // Use this for initialization
     void Start()
@@ -117,7 +120,14 @@ public class GunController : MonoBehaviour
     }
     public void GetAmmo()
     {
-
+        if (currentAmmoHolder >= maxAmmo)
+        {
+            currentAmmoHolder = maxAmmo;
+        }
+        else
+        {
+            currentAmmoHolder += pickupAmt;
+        }
     }
 
     public IEnumerator Reload(float reloadTime)

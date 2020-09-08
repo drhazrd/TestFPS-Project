@@ -7,32 +7,32 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
-    public float moveSpeed, runSpeed, gravityModifier, jumpPower;
     public CharacterController charCon;
     public GameManager gM;
+    public Transform groundCheckpoint;
+    public LayerMask whatIsGround;
+    public Animator anim;
 
     Vector2 mouseInput;
     Vector3 moveInput, verticalMovement, horizontalMovement;
 
     public Transform camTrans;
 
-    public GameObject isActiveGun;
+    //Player Stats
+    public GunController isActiveGun;
+    public GameObject sprintUI;
+    public float moveSpeed, runSpeed, gravityModifier, jumpPower;
 
     public int pID;
 
     public float mouseInputSensetivity, joyInputSensetivity = 1f;
     public bool invertX, invertY, useJoyStick, isRunning;
     private bool canJump, canDoubleJump, canMove;
-    public GameObject sprintUI;
-    public Transform groundCheckpoint;
-    public LayerMask whatIsGround;
-    public Animator anim;
-
 
     void Awake()
     {
         instance = this;
-        isActiveGun = FindObjectOfType<GunController>().gameObject;
+        isActiveGun = GetComponentInChildren<GunController>();
         gM = FindObjectOfType<GameManager>();
         canMove = true;
     }

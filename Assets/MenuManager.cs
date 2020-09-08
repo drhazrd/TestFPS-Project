@@ -13,9 +13,9 @@ public class MenuManager : MonoBehaviour
 
     void Awake()
     {
+        gM = FindObjectOfType<GameManager>();
         PauseMenuUI.SetActive(false);
         ResumeGame();
-        gM = FindObjectOfType<GameManager>();
     }
 
 
@@ -26,12 +26,10 @@ public class MenuManager : MonoBehaviour
             if (GameIsPaused)
             {
                 ResumeGame();
-                gM.playerFreeze = false;
             }
             else if(!GameIsPaused)
             {
                 PauseGame();
-                gM.playerFreeze = true;
             }
         }
     }
@@ -39,18 +37,20 @@ public class MenuManager : MonoBehaviour
     void PauseGame()
     {
         PauseMenuUI.SetActive(true);
-        Time.timeScale = 0f;
         GameIsPaused = true;
+        Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
+        gM.playerFreeze = true;
 
     }
 
     public void ResumeGame()
     {
         PauseMenuUI.SetActive(false);
-        Time.timeScale = 1f;
         GameIsPaused = false;
+        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
+        gM.playerFreeze = false;
     }
     public void RestartGame()
     {
