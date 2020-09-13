@@ -18,7 +18,7 @@ public class GunController : MonoBehaviour
 
     //Firing Variables
     public bool isFiring, canAutoFire;
-    public float fireRate;
+    public float fireRate,zoomValue;
     [HideInInspector]
     public float fireCounter;
 
@@ -30,6 +30,7 @@ public class GunController : MonoBehaviour
 
     //Weapon Held Variables
     public bool isActive;
+    public bool isHeld;
 
     // Use this for initialization
     void Start()
@@ -83,6 +84,16 @@ public class GunController : MonoBehaviour
             {
                 FireShot();
             }
+        }
+
+        //Weapon Zoom
+        if(Input.GetMouseButtonDown(1))
+        {
+            CameraController.instance.ZoomIn(zoomValue);
+        }
+        if (Input.GetMouseButtonUp(1))
+        {
+            CameraController.instance.ZoomOut();
         }
 
         //Text and UI info

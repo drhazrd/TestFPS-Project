@@ -19,22 +19,33 @@ public class PlayerController : MonoBehaviour
     public Transform camTrans;
 
     //Player Stats
-    public GunController isActiveGun;
+    public GunController activeGun, secondaryGun;
+    public List<GunController> allGuns = new List<GunController>();
+    public int currentGun, swapGun;
+
+    public Transform adsPoint, gunHolder;
+    public Vector3 gunStartPOS;
+    public float adsSpeed;
+
     public GameObject sprintUI;
     public float moveSpeed, runSpeed, gravityModifier, jumpPower;
 
     public int pID;
 
     public float mouseInputSensetivity, joyInputSensetivity = 1f;
-    public bool invertX, invertY, useJoyStick, isRunning;
+    public bool invertX, invertY, useJoyStick, isRunning, haloGunSwap;
     private bool canJump, canDoubleJump, canMove;
 
     void Awake()
     {
         instance = this;
-        isActiveGun = GetComponentInChildren<GunController>();
-        gM = FindObjectOfType<GameManager>();
         canMove = true;
+    }
+    void Start() {
+        gM = FindObjectOfType<GameManager>();
+        activeGun = allGuns[currentGun];
+        secondaryGun = allGuns[swapGun];
+        activeGun.gameObject.SetActive(true);
     }
     void Update()
     {
@@ -140,6 +151,53 @@ public class PlayerController : MonoBehaviour
         //Headbob
         //anim.SetFloat("moveSpeed", moveInput.magnitude);
         //anim.SetBool("onGround", canJump);
+        if (Input.GetMouseButton(1))
+        {
+            gunHolder.position = Vector3.MoveTowards(gunHolder.position, adsPoint.position, adsSpeed * Time.deltaTime);
+        }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+                //GunSwap();
+                GunSwitch();
+            if (haloGunSwap)
+            {
+            }
+            else if(!haloGunSwap)
+            {
+            }
+        }
     }
+    public void GunSwitch()
+    {
+        activeGun.gameObject.SetActive(false);
 
+        currentGun++;
+        if (currentGun >= allGuns.Count)
+        {
+            currentGun = 0;
+        }
+
+        activeGun = allGuns[currentGun];
+        if (activeGun.isHeld && !activeGun.isActive)
+        {
+            activeGun.gameObject.SetActive(true);
+        }
+        else
+        {
+            currentGun++;
+        }
+    }
+    public void GunSwap()
+    {
+        if (!activeGun)
+        {
+            activeGun.gameObject.SetActive(false);
+            secondaryGun.gameObject.SetActive(true);
+        }
+        else
+        {
+            activeGun.gameObject.SetActive(true);
+            secondaryGun.gameObject.SetActive(false);
+        }
+    }
 }

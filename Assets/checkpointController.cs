@@ -30,12 +30,12 @@ public class checkpointController : MonoBehaviour
     {
         if (!isActive)
         {
-            rend.material.color = color[0].color;
+           // rend.material.color = color[0].color;
             rend.material.SetColor("_EmissionColor", color[0].color);
         }
         else if (isActive)
         {
-            rend.material.color = color[1].color;
+            //rend.material.color = color[1].color;
             rend.material.SetColor("_EmissionColor", color[1].color);
         }
         if (Input.GetKeyDown(KeyCode.L))
