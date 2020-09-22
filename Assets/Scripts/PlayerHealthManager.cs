@@ -52,11 +52,17 @@ public class PlayerHealthManager : MonoBehaviour
                 currentArmor = 0;
                 currentHealth -= damageAmt;
 
+                UIController.instance.ShowDamage();
+                AudioManager.instance.PlaySFX(7);
+
+
                 if (currentHealth <= 0)
                 {
                     gameObject.SetActive(false);
                     currentHealth = 0;
                     GameManager.instance.PlayerDied();
+                    AudioManager.instance.PlaySFX(6);
+
                 }
             }
             else
@@ -68,6 +74,7 @@ public class PlayerHealthManager : MonoBehaviour
     }
     public void HealPlayer(int healedAmt)
     {
+        AudioManager.instance.PlaySFX(5);
         currentHealth += healedAmt;
         if (currentHealth > maxHealth)
         {

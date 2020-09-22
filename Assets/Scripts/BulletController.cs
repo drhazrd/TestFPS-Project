@@ -30,6 +30,7 @@ public class BulletController : MonoBehaviour
         {
             //Destroy(other.gameObject);
             other.gameObject.GetComponent<EnemyHealthController>().DealDamage(bulletDamage);
+            Instantiate(impactEffect, transform.position + (transform.forward*(-moveSpeed* Time.deltaTime)), transform.rotation);
         }
         if (other.gameObject.tag == "Player" && damagePlayer)
         {
@@ -37,6 +38,5 @@ public class BulletController : MonoBehaviour
             PlayerHealthManager.instance.DamagePlayer(bulletDamage);
         }
         Destroy(gameObject);
-        Instantiate(impactEffect, transform.position + (transform.forward*(-moveSpeed* Time.deltaTime)), transform.rotation);
     }
 }

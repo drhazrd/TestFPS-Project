@@ -14,26 +14,28 @@ public class PlayerController : MonoBehaviour
     public Animator anim;
 
     Vector2 mouseInput;
-    Vector3 moveInput, verticalMovement, horizontalMovement;
-
+    public Vector3 moveInput; 
+        Vector3 verticalMovement, horizontalMovement;
+    public GameObject walkSFX, sprintSFX;
     public Transform camTrans;
 
     //Player Stats
     public GunController activeGun, secondaryGun;
     public List<GunController> allGuns = new List<GunController>();
+    public List<GunController> allUnlockableGuns = new List<GunController>();
     public int currentGun, swapGun;
 
     public Transform adsPoint, gunHolder;
-    public Vector3 gunStartPOS;
+    private Vector3 gunStartPOS;
     public float adsSpeed;
 
-    public GameObject sprintUI;
     public float moveSpeed, runSpeed, gravityModifier, jumpPower;
 
     public int pID;
 
     public float mouseInputSensetivity, joyInputSensetivity = 1f;
-    public bool invertX, invertY, useJoyStick, isRunning, haloGunSwap;
+    public bool invertX, invertY, useJoyStick;
+    public bool isRunning, isHit, haloGunSwap;
     private bool canJump, canDoubleJump, canMove;
 
     void Awake()
@@ -46,6 +48,9 @@ public class PlayerController : MonoBehaviour
         activeGun = allGuns[currentGun];
         secondaryGun = allGuns[swapGun];
         activeGun.gameObject.SetActive(true);
+        gunStartPOS = gunHolder.localPosition;
+        walkSFX.SetActive(false);
+        sprintSFX.SetActive(false);
     }
     void Update()
     {
@@ -60,24 +65,37 @@ public class PlayerController : MonoBehaviour
         else if (useJoyStick) {
             verticalMovement = transform.forward * (Input.GetAxis("Joy"+ pID +"V"));
             horizontalMovement = transform.right * (Input.GetAxis("Joy"+ pID +"H"));
-            Debug.Log(verticalMovement);
-            Debug.Log(horizontalMovement);
         }
        
-
-        sprintUI.SetActive(isRunning);
+        UIController.instance.sprintUI.SetActive(isRunning);
+        //UIController.instance.hitUI.gameObject.SetActive(isHit);
         moveInput = horizontalMovement + verticalMovement;
         moveInput.Normalize();
-        if (Input.GetKey(KeyCode.LeftShift ) || Input.GetButton("Sprint"))
+        if (moveInput.x == 0f || moveInput.z == 0f)
+        {
+            walkSFX.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (charCon.isGrounded)
+                walkSFX.gameObject.SetActive(true);
+            Debug.Log("Walking....");
+        }
+        if (Input.GetKey(KeyCode.LeftShift ) || Input.GetButton("Sprint"+pID))
         {
             moveInput = moveInput * runSpeed;
             isRunning = true;
+            walkSFX.gameObject.SetActive(false);
+            if (charCon.isGrounded)
+                sprintSFX.gameObject.SetActive(true);
+            Debug.Log("Running....");
             //sprintUI.SetActive(isRunning);
         }
         else
         {
             moveInput = moveInput * moveSpeed;
             isRunning = false;
+            sprintSFX.gameObject.SetActive(false);
         }
         moveInput.y = yStore;
 
@@ -103,15 +121,22 @@ public class PlayerController : MonoBehaviour
             canMove = true;
         }
         //Jumping
-        if (Input.GetButtonDown("Jump") && canJump)
+        if (Input.GetButtonDown("Jump"+pID) && canJump)
         {
             moveInput.y = jumpPower;
             canDoubleJump = true;
+            AudioManager.instance.PlaySFX(8);
+            walkSFX.gameObject.SetActive(false);
+            sprintSFX.gameObject.SetActive(false);
+
         }
-        else if (canDoubleJump && Input.GetButtonDown("Jump"))
+        else if (canDoubleJump && Input.GetButtonDown("Jump"+pID))
         {
             moveInput.y = jumpPower;
             canDoubleJump = false;
+            AudioManager.instance.PlaySFX(8);
+            walkSFX.gameObject.SetActive(false);
+            sprintSFX.gameObject.SetActive(false);
         }
 
         charCon.Move(moveInput * Time.deltaTime);
@@ -155,7 +180,11 @@ public class PlayerController : MonoBehaviour
         {
             gunHolder.position = Vector3.MoveTowards(gunHolder.position, adsPoint.position, adsSpeed * Time.deltaTime);
         }
-        if (Input.GetKeyDown(KeyCode.Tab))
+        else
+        {
+            gunHolder.localPosition = Vector3.MoveTowards(gunHolder.localPosition, gunStartPOS, adsSpeed * Time.deltaTime);
+        }
+        if (Input.GetKeyDown(KeyCode.Tab) || Input.GetButtonDown("GunSwitch1"))
         {
                 //GunSwap();
                 GunSwitch();
@@ -199,5 +228,40 @@ public class PlayerController : MonoBehaviour
             activeGun.gameObject.SetActive(true);
             secondaryGun.gameObject.SetActive(false);
         }
+    }
+    public void AddGun(string gunToAdd)
+    {
+        Debug.Log("Picked up the " + gunToAdd);
+        bool gunUnlocked = false;
+        if (allUnlockableGuns.Count > 0)
+        {
+            for (int i = 0; i < allUnlockableGuns.Count; i++)
+            {
+                if(allUnlockableGuns[i].gunName == gunToAdd)
+                {
+                    gunUnlocked = true;
+                    allGuns.Add(allUnlockableGuns[i]);
+                    allUnlockableGuns.RemoveAt(i);
+                    i = allUnlockableGuns.Count;
+                }
+            }
+        }
+        if (gunUnlocked)
+        {
+            currentGun = allGuns.Count - 2;
+            GunSwitch();
+        }
+    }
+    public void InversionToggleX()
+    {
+        invertX = !invertX;
+    }
+    public void InversionToggleY()
+    {
+        invertY = !invertY;
+    }
+    public void ControllerToggle()
+    {
+        useJoyStick = !useJoyStick;
     }
 }

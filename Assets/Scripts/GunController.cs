@@ -8,8 +8,7 @@ public class GunController : MonoBehaviour
     //GameObject Variables
 
     public Transform firePoint;
-    public GameObject bullet;
-    public ParticleSystem fireEffect;
+    public GameObject bullet, muzzleFireEffect;
     public PlayerController playerCtrl;
 
     //Shot Tracking Variables
@@ -29,13 +28,14 @@ public class GunController : MonoBehaviour
     public bool isAmmoPouch;
 
     //Weapon Held Variables
-    public bool isActive;
-    public bool isHeld;
+    public bool isActive, isHeld;
+    public string gunName;
+
 
     // Use this for initialization
     void Start()
     {
-        fireEffect = GetComponentInChildren<ParticleSystem>();
+        gunName = this.gameObject.name;
         localGunTransform = firePoint.transform;        
         currentAmmo = reloadAmount;
         currentAmmoHolder = maxAmmo;
@@ -58,6 +58,7 @@ public class GunController : MonoBehaviour
         {
             fireCounter -= Time.deltaTime;
         }
+        muzzleFireEffect.SetActive(false);
         
         //Single Shots
         if (Input.GetMouseButton(0) && fireCounter<=0 || Input.GetAxis("JoyFire1") > 0.1f && fireCounter <= 0 || Input.GetButtonDown("JoyFire2") && fireCounter <= 0)
@@ -78,7 +79,7 @@ public class GunController : MonoBehaviour
         }
 
         //Automatic Shots
-        if (Input.GetMouseButtonDown(0) && canAutoFire || Input.GetAxis("JoyFire1") > 0.1f && canAutoFire || Input.GetButtonDown("JoyFire2") && canAutoFire)
+        if (Input.GetMouseButtonDown(0) && canAutoFire || Input.GetAxis("JoyFire1") > 0.1f && canAutoFire || Input.GetAxis("JoyFire2") > 0.1f && canAutoFire)
         {
             if (fireCounter <= 0)
             {
@@ -124,7 +125,7 @@ public class GunController : MonoBehaviour
             currentAmmo--;
             Instantiate(bullet, firePoint.position, firePoint.rotation);
             fireCounter = fireRate;
-            fireEffect.Play();
+            muzzleFireEffect.SetActive(true);
             isFiring = true;
             Debug.Log("Fire!");
         }
