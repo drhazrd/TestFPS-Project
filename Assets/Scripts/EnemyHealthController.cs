@@ -22,6 +22,7 @@ public class EnemyHealthController : MonoBehaviour
         if (currentHealth < 0)
         {
             AudioManager.instance.PlaySFX(2);
+            GameManager.instance.currentEnemies.Remove(this.gameObject.GetComponent<EnemyHealthController>());
             Destroy(gameObject);
         }
     }

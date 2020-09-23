@@ -6,9 +6,12 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
+    public ThorQuestSystem thor;
+    public OdinEventSystem odin;
     public bool playerFreeze;
     //public PlayerController[] allActivePlayers;
     public List<PlayerController> currPlayers = new List<PlayerController>();
+    public List<EnemyHealthController> currentEnemies = new List<EnemyHealthController>();
     int numPlayers;
     public static bool xAxisFlag, yAxisFlag, useController;
     public float timeToScan = 10f;
@@ -21,13 +24,16 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        thor = GetComponent<ThorQuestSystem>();
+        odin = GetComponent<OdinEventSystem>();
         Cursor.lockState = CursorLockMode.Locked;
         playerFreeze = false;
         ScanForPlayers(.1f);
+        FindEnemies();
     }
     void Update()
     {
-        ScanForPlayers(timeToScan);
+        
     }
     public void PlayerDied()
     {
@@ -54,6 +60,17 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(scanInterval);
         this.currPlayers.Clear();
         var myPlayer = FindObjectsOfType<PlayerController>();
-        foreach ( PlayerController i in myPlayer) { this.currPlayers.Add(myPlayer[0]); }
+    }
+    public IEnumerator ScanForEnemies(float scanInterval)
+    {
+        Debug.Log("Scanning...");
+        yield return new WaitForSeconds(scanInterval);
+        this.currPlayers.Clear();
+        currentEnemies.AddRange(FindObjectsOfType<EnemyHealthController>());
+    }
+    public void FindEnemies()
+    {
+
+        currentEnemies.AddRange(FindObjectsOfType<EnemyHealthController>());
     }
 }

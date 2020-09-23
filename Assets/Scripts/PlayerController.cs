@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AI;
 
 public class PlayerController : MonoBehaviour
@@ -15,28 +16,46 @@ public class PlayerController : MonoBehaviour
 
     Vector2 mouseInput;
     public Vector3 moveInput; 
-        Vector3 verticalMovement, horizontalMovement;
+    Vector3 verticalMovement, horizontalMovement;
     public GameObject walkSFX, sprintSFX;
     public Transform camTrans;
 
-    //Player Stats
+    //Player Weapons/Guns
     public GunController activeGun, secondaryGun;
     public List<GunController> allGuns = new List<GunController>();
     public List<GunController> allUnlockableGuns = new List<GunController>();
     public int currentGun, swapGun;
 
+    //Player info
+    public Text playerInfo;
+    public int pID;
+    //Player Ability List
+    //Player Ability Cooldown
+
     public Transform adsPoint, gunHolder;
     private Vector3 gunStartPOS;
     public float adsSpeed;
 
+    //Player Stats
     public float moveSpeed, runSpeed, gravityModifier, jumpPower;
+    private float bounceAmt;
+    private bool isBounced;
 
-    public int pID;
+    //Player Event Info
+    public Quest quest;
+    public Text missionText;
+    public bool isQuesting;
+    public Text scoreText;
+    public Text grenadesText;
+    public int questCurrentAmount;
+    public int questRequiredAmount;
 
+    //Gameplay Options Control
     public float mouseInputSensetivity, joyInputSensetivity = 1f;
     public bool invertX, invertY, useJoyStick;
     public bool isRunning, isHit, haloGunSwap;
     private bool canJump, canDoubleJump, canMove;
+
 
     void Awake()
     {
@@ -54,6 +73,9 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
+        //Player Info Update
+        playerInfo.text = "Enemies Left: " + GameManager.instance.currentEnemies.Count.ToString();
+
         //moveInput.x = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
         //moveInput.z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
         float yStore = moveInput.y;
@@ -120,6 +142,7 @@ public class PlayerController : MonoBehaviour
         {
             canMove = true;
         }
+        //Bounce
         //Jumping
         if (Input.GetButtonDown("Jump"+pID) && canJump)
         {
@@ -137,6 +160,13 @@ public class PlayerController : MonoBehaviour
             AudioManager.instance.PlaySFX(8);
             walkSFX.gameObject.SetActive(false);
             sprintSFX.gameObject.SetActive(false);
+        }
+
+        if (isBounced)
+        {
+            isBounced = false;
+            moveInput.y = bounceAmt;
+            canDoubleJump = true;
         }
 
         charCon.Move(moveInput * Time.deltaTime);
@@ -263,5 +293,10 @@ public class PlayerController : MonoBehaviour
     public void ControllerToggle()
     {
         useJoyStick = !useJoyStick;
+    }
+    public void Bounce(float bounceForce)
+    {
+        bounceAmt = bounceForce;
+        isBounced = true;
     }
 }
