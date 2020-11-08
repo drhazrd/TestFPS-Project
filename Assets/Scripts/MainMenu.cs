@@ -6,10 +6,22 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     public string firstLevel;
+
+    public GameObject continueButton;
     // Start is called before the first frame update
     void Start()
     {
-        
+        if(PlayerPrefs.HasKey("CurrentLevel"))
+        {
+            if (PlayerPrefs.GetString("CurrentLevel") == "")
+            {
+                continueButton.SetActive(false);
+            }
+        }
+        else
+        {
+            continueButton.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -17,9 +29,15 @@ public class MainMenu : MonoBehaviour
     {
         
     }
+    public void Continue()
+    {
+        SceneManager.LoadScene(PlayerPrefs.GetString("CurrentLevel"));
+    }
     public void Play()
     {
         SceneManager.LoadScene(firstLevel);
+        PlayerPrefs.SetString("CurrentLevel", "");
+        PlayerPrefs.SetString(firstLevel + "_cp", "");
     }
 
     public void Quit()

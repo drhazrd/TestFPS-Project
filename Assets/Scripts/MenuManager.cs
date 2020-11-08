@@ -9,7 +9,9 @@ public class MenuManager : MonoBehaviour
 
     public static bool GameIsPaused;
     public GameObject PauseMenuUI, ScoreUI;
+    public string mainMenuScene;
     public GameManager gM;
+    public float currentMasterVolume;
 
     void Awake()
     {
@@ -21,6 +23,7 @@ public class MenuManager : MonoBehaviour
 
     private void Update()
     {
+        currentMasterVolume = GetMasterLevel();
         if (Input.GetKeyDown(KeyCode.BackQuote) || Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("JoyMenu1"))
         {
             if (GameIsPaused)
@@ -41,7 +44,7 @@ public class MenuManager : MonoBehaviour
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         gM.playerFreeze = true;
-        AudioManager.instance.SetMasterVolume(-40);
+        AudioManager.instance.SetMasterVolume(GetMasterLevel()/.5f);
     }
 
     public void ResumeGame()
@@ -51,16 +54,34 @@ public class MenuManager : MonoBehaviour
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         gM.playerFreeze = false;
-        AudioManager.instance.SetMasterVolume(0);
+        AudioManager.instance.SetMasterVolume(currentMasterVolume /= 2f);
     }
     public void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+    public void MainMenu()
+    {
+        SceneManager.LoadScene(mainMenuScene);
+        Time.timeScale = 1;
+        AudioManager.instance.SetMasterVolume(currentMasterVolume = -19);
+    }
     public void QuitGame()
     {
         Application.Quit();
     }
-
+    public float GetMasterLevel()
+    {
+        float value;
+        bool result = AudioManager.instance.aMixer.GetFloat("MasterVol", out value);
+        if (result)
+        {
+            return value;
+        }
+        else
+        {
+            return 0f;
+        }
+    }
 }
 

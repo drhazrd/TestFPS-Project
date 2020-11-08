@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public ThorQuestSystem thor;
     public OdinEventSystem odin;
-    public bool playerFreeze;
+    public bool playerFreeze, levelEnding;
     //public PlayerController[] allActivePlayers;
     public List<PlayerController> currPlayers = new List<PlayerController>();
     public List<EnemyHealthController> currentEnemies = new List<EnemyHealthController>();
@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
         odin = GetComponent<OdinEventSystem>();
         Cursor.lockState = CursorLockMode.Locked;
         playerFreeze = false;
+        levelEnding = false;
         ScanForPlayers(.1f);
         FindEnemies();
     }

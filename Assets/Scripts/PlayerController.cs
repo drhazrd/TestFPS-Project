@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     Vector2 mouseInput;
     public Vector3 moveInput; 
     Vector3 verticalMovement, horizontalMovement;
+    public float maxViewAngle = 60f, minViewAngle;
     public GameObject walkSFX, sprintSFX;
     public Transform camTrans;
 
@@ -75,72 +76,75 @@ public class PlayerController : MonoBehaviour
     {
         //Player Info Update
         playerInfo.text = "Enemies Left: " + GameManager.instance.currentEnemies.Count.ToString();
+        if (!gM.playerFreeze && !gM.levelEnding)
+        {
+            //moveInput.x = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+            //moveInput.z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+            float yStore = moveInput.y;
+            if (!useJoyStick)
+            {
+                verticalMovement = transform.forward * (Input.GetAxis("Vertical"));
+                horizontalMovement = transform.right * (Input.GetAxis("Horizontal"));
+            }
 
-        //moveInput.x = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        //moveInput.z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-        float yStore = moveInput.y;
-        if (!useJoyStick) {
-            verticalMovement = transform.forward * (Input.GetAxis("Vertical"));
-            horizontalMovement = transform.right * (Input.GetAxis("Horizontal"));
-        }
+            else if (useJoyStick)
+            {
+                verticalMovement = transform.forward * (Input.GetAxis("Joy" + pID + "V"));
+                horizontalMovement = transform.right * (Input.GetAxis("Joy" + pID + "H"));
+            }
+            moveInput = horizontalMovement + verticalMovement;
+            moveInput.Normalize();
+            if (moveInput.x == 0f || moveInput.z == 0f)
+            {
+                walkSFX.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (charCon.isGrounded)
+                    walkSFX.gameObject.SetActive(true);
+                Debug.Log("Walking....");
+            }
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetButton("Sprint" + pID))
+            {
+                moveInput = moveInput * runSpeed;
+                isRunning = true;
+                walkSFX.gameObject.SetActive(false);
+                if (charCon.isGrounded)
+                    sprintSFX.gameObject.SetActive(true);
+                Debug.Log("Running....");
+                //sprintUI.SetActive(isRunning);
+            }
+            else
+            {
+                moveInput = moveInput * moveSpeed;
+                isRunning = false;
+                sprintSFX.gameObject.SetActive(false);
+            }
+            moveInput.y = yStore;
 
-        else if (useJoyStick) {
-            verticalMovement = transform.forward * (Input.GetAxis("Joy"+ pID +"V"));
-            horizontalMovement = transform.right * (Input.GetAxis("Joy"+ pID +"H"));
+            moveInput.y += Physics.gravity.y * gravityModifier * Time.deltaTime;
+
+            if (charCon.isGrounded)
+            {
+                moveInput.y = Physics.gravity.y * gravityModifier * Time.deltaTime;
+            }
+
+            canJump = Physics.OverlapSphere(groundCheckpoint.position, .25f, whatIsGround).Length > 0;
+
+            if (canJump)
+            {
+                canDoubleJump = false;
+            }
         }
-       
         UIController.instance.sprintUI.SetActive(isRunning);
         //UIController.instance.hitUI.gameObject.SetActive(isHit);
-        moveInput = horizontalMovement + verticalMovement;
-        moveInput.Normalize();
-        if (moveInput.x == 0f || moveInput.z == 0f)
-        {
-            walkSFX.gameObject.SetActive(false);
-        }
-        else
-        {
-            if (charCon.isGrounded)
-                walkSFX.gameObject.SetActive(true);
-            Debug.Log("Walking....");
-        }
-        if (Input.GetKey(KeyCode.LeftShift ) || Input.GetButton("Sprint"+pID))
-        {
-            moveInput = moveInput * runSpeed;
-            isRunning = true;
-            walkSFX.gameObject.SetActive(false);
-            if (charCon.isGrounded)
-                sprintSFX.gameObject.SetActive(true);
-            Debug.Log("Running....");
-            //sprintUI.SetActive(isRunning);
-        }
-        else
-        {
-            moveInput = moveInput * moveSpeed;
-            isRunning = false;
-            sprintSFX.gameObject.SetActive(false);
-        }
-        moveInput.y = yStore;
-
-        moveInput.y += Physics.gravity.y * gravityModifier * Time.deltaTime;
-
-        if (charCon.isGrounded)
-        {
-            moveInput.y = Physics.gravity.y * gravityModifier * Time.deltaTime;
-        }
-
-        canJump = Physics.OverlapSphere(groundCheckpoint.position, .25f, whatIsGround).Length > 0;
-
-        if (canJump)
-        {
-            canDoubleJump = false;
-        }
-        if (gM.playerFreeze)
-        {
-            canMove = false;
-        }
-        else
+        if (!gM.playerFreeze && !gM.levelEnding)
         {
             canMove = true;
+        }
+        else
+        {
+            canMove = false;
         }
         //Bounce
         //Jumping
@@ -201,7 +205,13 @@ public class PlayerController : MonoBehaviour
 
         camTrans.rotation = Quaternion.Euler(camTrans.rotation.eulerAngles + new Vector3(-mouseInput.y, 0f, 0f));
 
-
+        if (camTrans.rotation.eulerAngles.x > maxViewAngle&&camTrans.rotation.eulerAngles.x<180f)
+        {
+            camTrans.rotation = Quaternion.Euler(maxViewAngle, camTrans.rotation.eulerAngles.y, camTrans.rotation.eulerAngles.z);
+        }else if (camTrans.rotation.eulerAngles.x > 180f && camTrans.rotation.eulerAngles.x < 360f - maxViewAngle)
+        {
+            camTrans.rotation = Quaternion.Euler(-maxViewAngle, camTrans.rotation.eulerAngles.y, camTrans.rotation.eulerAngles.z);
+        }
 
         //Headbob
         //anim.SetFloat("moveSpeed", moveInput.magnitude);

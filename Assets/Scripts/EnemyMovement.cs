@@ -14,6 +14,7 @@ public class EnemyMovement : MonoBehaviour
     public Animator anim;
     public float keepChaseTimer = 5f;
     private float chaseCounter;
+    private bool wasShot;
     public GameObject bullet;
     public Transform firepoint;
     public float fireRate, waitBetweenShot = 2f, timeToShoot, firstFireWait = 1f;
@@ -79,10 +80,17 @@ public class EnemyMovement : MonoBehaviour
 
             if (Vector3.Distance(transform.position, targetPoint) > distanceToLose)
             {
-                chasing = false;
+                if (!wasShot)
+                {
+                    chasing = false;
+                    chaseCounter = keepChaseTimer;
+                }
                 targetLocated = false;
                 //enemyAgent.destination = startPoint;
-                chaseCounter = keepChaseTimer;
+            }
+            else
+            {
+
             }
             if (shotWaitTimer > 0)
             {
@@ -139,5 +147,11 @@ public class EnemyMovement : MonoBehaviour
                 anim.SetBool("isMoving", false);
             }
         }
+    }
+    public void GetShot()
+    {
+        wasShot = true;
+        chasing = true;
+        //enemyAgent.destination = PlayerController.instance.transform.position;
     }
 }

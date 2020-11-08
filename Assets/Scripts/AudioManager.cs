@@ -7,7 +7,7 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
     
-    public AudioSource bgm;
+    public AudioSource bgm, victory, defeat;
     public AudioMixer aMixer;
 
     public AudioSource[] soundEffect;
@@ -31,6 +31,16 @@ public class AudioManager : MonoBehaviour
     public void StopBGM()
     {
         bgm.Stop();
+    }
+    public void PlayVictory()
+    {
+        StopBGM();
+        victory.Play();
+    }
+    public void PlayDefeat()
+    {
+        StopBGM();
+        defeat.Play();
     }
     public void PlaySFX(int sfxNum)
     {
