@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using System.Collections.Generic;
+using System;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -12,15 +14,17 @@ public class EnemyMovement : MonoBehaviour
     public int navPointID;
     public NavMeshAgent enemyAgent;
     public Animator anim;
+    //[HideInInspector] 
+    public GameObject m_Instance;
+    private StateController m_StateController;
     public float keepChaseTimer = 5f;
-    private float chaseCounter;
+    [SerializeField]
+    float chaseCounter;
     private bool wasShot;
     public GameObject bullet;
     public Transform firepoint;
     public float fireRate, waitBetweenShot = 2f, timeToShoot, firstFireWait = 1f;
     float fireRateTimer, shotWaitTimer, shootTimer, aimPoint = .5f;
-
-
     // Use this for initialization
     void Start()
     {
@@ -29,45 +33,34 @@ public class EnemyMovement : MonoBehaviour
         shootTimer = timeToShoot;
         shotWaitTimer = waitBetweenShot;
     }
-
     // Update is called once per frame
     void Update()
     {
         targetPoint = PlayerController.instance.transform.position;
         //target = PlayerController.instance.transform;
         targetPoint.y = transform.position.y;
-
-
         if (!chasing)
         {
             if (Vector3.Distance(transform.position, targetPoint) < distanceToChase)
             {
-                chasing = true;
-                targetLocated = true;
-                shootTimer = timeToShoot;
-                shotWaitTimer = waitBetweenShot;
+                Chase();
             }
             if (chaseCounter > 0)
             {
                 chaseCounter -= Time.deltaTime;
-
                 if (chaseCounter <= 0)
                 {
                     enemyAgent.destination = startPoint;
+                    //Patrol();
                 }
             }
-
             if (enemyAgent.remainingDistance < .25)
                 anim.SetBool("isMoving", false);
             else
                 anim.SetBool("isMoving", true);
-
         }
         else
         {
-            //transform.LookAt(targetPoint);
-
-            //enemyRB.velocity = transform.forward * moveSpeed;
             if (Vector3.Distance(transform.position, targetPoint) > distanceToStop)
             {
                 enemyAgent.destination = targetPoint;
@@ -86,7 +79,6 @@ public class EnemyMovement : MonoBehaviour
                     chaseCounter = keepChaseTimer;
                 }
                 targetLocated = false;
-                //enemyAgent.destination = startPoint;
             }
             else
             {
@@ -106,25 +98,15 @@ public class EnemyMovement : MonoBehaviour
             {
                 if (PlayerController.instance.gameObject.activeInHierarchy)
                 {
-
-
                     shootTimer -= Time.deltaTime;
-
-
                     if (shootTimer > 0)
                     {
-
-
                         fireRateTimer -= Time.deltaTime;
-
                         if (fireRateTimer <= 0)
                         {
                             fireRateTimer = fireRate;
-
                             firepoint.LookAt(targetPoint + new Vector3(0, aimPoint, 0));
-
                             //Check player angle
-
                             Vector3 targetDir = targetPoint - transform.position;
                             float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
                             if (Mathf.Abs(angle) < 30f)
@@ -152,6 +134,17 @@ public class EnemyMovement : MonoBehaviour
     {
         wasShot = true;
         chasing = true;
-        //enemyAgent.destination = PlayerController.instance.transform.position;
+    }
+
+    public void Patrol()
+    {
+
+    }
+    public void Chase()
+    {
+        chasing = true;
+        targetLocated = true;
+        shootTimer = timeToShoot;
+        shotWaitTimer = waitBetweenShot;
     }
 }

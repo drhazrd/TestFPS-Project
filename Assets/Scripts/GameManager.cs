@@ -10,8 +10,12 @@ public class GameManager : MonoBehaviour
     public OdinEventSystem odin;
     public bool playerFreeze, levelEnding;
     //public PlayerController[] allActivePlayers;
+    public GameObject[] m_EnemyPrefabs;
+    public EnemyManager[] m_Enemies;
+
     public List<PlayerController> currPlayers = new List<PlayerController>();
     public List<EnemyHealthController> currentEnemies = new List<EnemyHealthController>();
+    public List<Transform> wayPointsForAI;
     int numPlayers;
     public static bool xAxisFlag, yAxisFlag, useController;
     public float timeToScan = 10f;
@@ -31,6 +35,7 @@ public class GameManager : MonoBehaviour
         levelEnding = false;
         ScanForPlayers(.1f);
         FindEnemies();
+        EnemySpawn();
     }
     void Update()
     {
@@ -73,5 +78,22 @@ public class GameManager : MonoBehaviour
     {
 
         currentEnemies.AddRange(FindObjectsOfType<EnemyHealthController>());
+    }
+    public void EnemySpawn()
+    {
+        for (int i = 0; i < m_Enemies.Length; i++)
+        {
+            m_Enemies[i].m_Instance = Instantiate(m_EnemyPrefabs[i], m_Enemies[i].m_SpawnPoint.position, m_Enemies[i].m_SpawnPoint.rotation) as GameObject;
+            m_Enemies[i].m_PlayerNumber = i + 1;
+            if (m_Enemies[i].isAI)
+            {
+                m_Enemies[i].SetupAI(wayPointsForAI);
+            } 
+            else
+            {
+                return;
+            //    m_Enemies[i].SetupPlayer(m_Camera);
+            }
+        }
     }
 }
